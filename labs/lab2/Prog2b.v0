@@ -1,0 +1,215 @@
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <iomanip>
+
+using namespace std;
+
+const string face[] = { "Ace", "2", "3", "4", "5", "6", "7",
+                        "8", "9", "10", "Jack", "Queen", "King" }; 
+const string suit[] = { "Clubs", "Diamonds", "Hearts", "Spades" };
+
+class List {
+    private:
+        struct Node {
+            Node *next;
+			int face_index;
+			Node(int data=-1) {next = NULL; face_index = data;}
+		};
+		Node *head;
+		int num_elem;
+	public:
+        List() {head = new Node; num_elem = 0;}
+		~List();
+		int size() {return num_elem;}
+        void insert(int);
+    friend ostream & operator<<(ostream &, const List &); 
+};
+
+List::~List() {
+    while (num_elem != 0) {
+        Node *p = head->next;
+		Node *pp = p->next;
+		head->next = pp;
+		delete p;
+		num_elem--;
+	}
+	delete head;
+}
+
+void List::insert(int ind) {
+	if (num_elem == 0) {
+        Node *firstnode = new Node(ind);
+		head->next = firstnode;
+		num_elem++;
+		return;
+	}
+	Node *prev = head;
+	Node *curr = head->next;
+	for (int i = 0; i < num_elem; i++) {
+        if (curr->face_index == ind) {
+			if (i == 0) {
+				return;
+			}
+			else {
+                prev->next = curr->next;
+				curr->next = head->next;
+				head->next = curr;
+				return;
+			}
+			break;
+		}
+		prev = curr;
+		curr = curr->next;
+	}
+	Node *end = head->next;
+	for (int j = 0; j < num_elem - 1; j++) {
+        end = end->next;
+	}
+	Node *newnode = new Node(ind);
+	end->next = newnode;
+	num_elem++;
+	return;
+}
+
+ostream & operator<<(ostream &out, const List &L) {
+	List::Node *p = L.head->next;
+	for (int i = 0; i < L.num_elem; i++) {
+        out << face[p->face_index] << " ";
+		p = p->next;
+	}
+	return out;
+}
+
+string random_card(bool verbose=false) {
+	string card;
+
+	card = face[ rand()%13 ];
+	card += " of ";
+	card += suit[ rand()%4 ];
+
+	if (verbose)
+	  cout << card << "\n";
+
+	return card;
+}
+
+int main(int argc, char *argv[])
+{
+	bool verbose = false;
+	int seedvalue = 0;
+
+	for (int i=1; i<argc; i++) {
+	  string option = argv[i];
+	  if (option.compare(0,6,"-seed=") == 0) {
+	    seedvalue = atoi(&argv[i][6]);
+	  } else if (option.compare("-verbose") == 0) {
+	    verbose = true;
+	  } else 
+	    cout << "option " << argv[i] << " ignored\n";
+	}
+
+	srand(seedvalue);
+
+	/* Creates an array deck to store the number
+	 * of each card drawn and an int break_row
+	 * to store the number for the row that
+	 * causes the loop below to break.
+	 */
+	List deck[4];
+	int num_faces[4][3] = {};
+	int break_row;
+
+	/* Indefinite loop (with a manual break) that gets a
+	 * random card, uses the card's value and suit to
+	 * update deck, and breaks out once all the face
+	 * cards of a single suit has been drawn.
+	 */
+	while (1) {
+	  string card = random_card(verbose);
+	  //These variables store the rank, garbage string, and suit of the card respectively
+	  string rank, garbage, type;
+	  stringstream ss;
+      ss << card;
+	  ss >> rank >> garbage >> type;
+	  /* This block of code determines the indicies of the global
+	   * suit and face arrays which correspond with the values of
+	   * the variables type and rank. These indicies are stored in ind1
+	   * and ind2. Then, the value of deck at row ind1 and column ind2 is
+	   * incremented by 1.
+	   */
+	  int ind1, ind2;
+	  for (int i = 0; i < 4; i++) {
+          if (type == suit[i]) {
+              ind1 = i;
+			  break;
+		  }
+	  }
+	  for (int j = 0; j < 13; j++) {
+          if (rank == face[j]) {
+              ind2 = j;
+			  break;
+		  }
+	  }
+      deck[ind1].insert(ind2);
+	  if (ind2 == 10 || ind2 == 11 || ind2 == 12) {
+          num_faces[ind1][ind2]++;
+	  }
+	  /* This block of code breaks the while loop when
+	   * all the face cards for a single suit have been
+	   * pulled at least once. There is a single statement
+	   * for each suit to insure the break command breaks
+	   * out of the while loop (instead of a for loop).
+	   */
+      if ((num_faces[0][0] >= 1 && num_faces[0][1] >= 1 && num_faces[0][2] >= 1)) {
+          break_row = 0;
+          break;
+	  }
+      if ((num_faces[1][0] >= 1 && num_faces[1][1] >= 1 && num_faces[1][2] >= 1)) {
+          break_row = 1;
+          break;
+	  }
+      if ((num_faces[2][0] >= 1 && num_faces[2][1] >= 1 && num_faces[2][2] >= 1)) {
+          break_row = 2;
+          break;
+	  }
+      if ((num_faces[3][0] >= 1 && num_faces[3][1] >= 1 && num_faces[3][2] >= 1)) {
+          break_row = 3;
+          break;
+	  }
+	}
+
+    for (int i = 0; i < 4; i++) {
+		/* Adds the suit name to the correct
+		 * output row.
+		 */
+		switch(i) {
+            case(0): {
+                cout << setw(9) << right << "Clubs:"; 
+				break;
+		    }
+		    case(1): {
+                cout << setw(9) << right << "Diamonds:";
+				break;
+			}
+			case(2): {
+                cout << setw(9) << right << "Hearts:";
+				break;
+			}
+			case(3): {
+                cout << setw(9) << right << "Spades:";
+				break;
+			}
+		}
+		cout << deck[i];
+		if (i == break_row) {
+            cout << " **";
+		}
+		/* Adds the number of each card that was
+		 * drawn to the table
+		 */
+		cout << endl;
+	}
+	return(0);
+}
