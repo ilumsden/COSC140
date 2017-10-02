@@ -5,3 +5,7 @@ This is my personal repository for storing my solutions to homework and labs for
 ## Labs
 
 My solutions to the labs.
+
+## Homework
+
+My solutions to the homework.
