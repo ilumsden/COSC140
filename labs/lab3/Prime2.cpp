@@ -3,7 +3,7 @@
 #include <vector>
 #include <algorithm>
 
-/* Prime1.cpp
+/* Prime2.cpp
  * Author: Ian Lumsden
  * Date: October 2, 2017
  *
