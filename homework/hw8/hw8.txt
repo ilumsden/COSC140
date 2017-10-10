@@ -1,0 +1,33 @@
+Problem 1:
+----------
+
+    a) T(N) = 2N + N(N+3) = N^2 + 5N = O(N^2)
+    b) T(N) = 5 = O(1)
+    c) T(N) = N + log(N^2) = 2log(N) + N = O(N)
+    d) T(N) = N(2+log(N)) = Nlog(N) + 2N = O(Nlog(N))
+
+Problem 2:
+----------
+
+    a) Finding the ith element is done with the following code:
+           A[i] = *(A + i)
+       Therefore, this is O(1).
+    b) T(N) = (1+2+3+...+N)/N = (N(N+1))/(2N) = (N+1)/2 = O(N)
+
+Problem 3:
+----------
+
+    a) The worst-case code for finding the ith element is:
+           p = head->next;
+           for (int j = 0; j < i; j++) {
+               p = p->next;
+           }
+       Therefore, T(N) = c1*N + c2 = O(N)
+    b) T(N) = (1+2+3+...+N)/N = (N+1)/2 = O(N)
+
+Problem 4:
+----------
+
+    Since N^0.5 = sqrt(N), you can calculate that N = (sqrt(N))^2. Setting y = N and x = sqrt(N), y = x^2. Therefore, O(sqrt(N)) = O(x), and O(N) = O(y) = O(x^2). Therefore, O(sqrt(N)) is quadratically faster than O(N).
+
+    Since N = 2^(log(N)), you can find that sqrt(N) = 2^(log(sqrt(N))) = sqrt(N)^(log(N)). Therefore, O(log(sqrt(N))) and, thus, O(logN) is exponentially faster than O(sqrt(N)).
