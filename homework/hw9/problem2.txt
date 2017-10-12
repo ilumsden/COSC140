@@ -1,0 +1,10 @@
+The magic function will not print anything until it encounters a newline character.
+When it does, it will work back from the last call of magic() to the first call, performing the
+cout calls for each function.
+
+Therefore, the output of the code given the provided input will be:
+
+ns pxm buf nz nfubm xpsn
+gmff up nf sfnpuf fmg
+zp cbobob cpz
+nbshf mfut opsbi tff tbsbit ufmfhsbn

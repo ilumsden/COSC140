@@ -28,6 +28,9 @@ Problem 3:
 Problem 4:
 ----------
 
-    Since N^0.5 = sqrt(N), you can calculate that N = (sqrt(N))^2. Setting y = N and x = sqrt(N), y = x^2. Therefore, O(sqrt(N)) = O(x), and O(N) = O(y) = O(x^2). Therefore, O(sqrt(N)) is quadratically faster than O(N).
+    Since N^0.5 = sqrt(N), you can calculate that N = (sqrt(N))^2. Setting y = N and x = sqrt(N), 
+    y = x^2. Therefore, O(sqrt(N)) = O(x), and O(N) = O(y) = O(x^2). Therefore, O(sqrt(N)) is 
+    quadratically faster than O(N).
 
-    Since N = 2^(log(N)), you can find that sqrt(N) = 2^(log(sqrt(N))) = sqrt(N)^(log(N)). Therefore, O(log(sqrt(N))) and, thus, O(logN) is exponentially faster than O(sqrt(N)).
+    Since N = 2^(log(N)), you can find that sqrt(N) = 2^(log(sqrt(N))) = sqrt(N)^(log(N)). 
+    Therefore, O(log(sqrt(N))) and, thus, O(logN) is exponentially faster than O(sqrt(N)).
