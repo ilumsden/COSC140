@@ -66,7 +66,7 @@ int hash_table::hash(const string &key) {
 	while (*c) {
         index = ((index << 5) | (index >> 27)) + *c++;
 	}
-	return (uint)index & table.size();
+	return (uint)index % table.size();
 }
 
 int hash_table::nextprime(int N) {
@@ -110,12 +110,12 @@ void hash_table::resize() {
 }
 
 const vector<int> & hash_table::find(const string &key) {
-    //vector<int> lnums;
+    const vector<int> lnums;
     int index = qprobe(key);
     if (table.at(index) == key) {
         return table.at(index).line_nums;
 	}
-	return const vector<int>();
+	return find(string());
 }
 
 int main(int argc, char* argv[]) {
@@ -126,7 +126,6 @@ int main(int argc, char* argv[]) {
 	hash_table tbl;
 	ifstream fin;
 	fin.open(argv[1]);
-	isstream sin;
 	vector<string> lines;
 	string line;
 	int line_num = 1;
@@ -140,15 +139,15 @@ int main(int argc, char* argv[]) {
 			}
 			++start;
 		}
+	    isstream sin;
 		sin.str(line);
 		string word;
 		while (sin >> word) {
             tbl.insert(word, line_num); 
 		}
-		sin.str("");
 		line_num++;
     }
-	cout << "user> ";
+	cout << "find> ";
 	string input;
 	vector<int> lnums;
 	while (cin >> input) {
@@ -157,12 +156,13 @@ int main(int argc, char* argv[]) {
             cout << input << " not found.\n" << endl;
 		}
 		else {
-            for (int i = 0; i < (uint)lnums.size(); i++) {
+            for (uint i = 0; i < lnums.size(); i++) {
                 cout << setw(4) << lnums.at(i) << ":";
 				cout << lines.at(lnums.at(i) - 1) << endl; 
 			}
 			cout << endl;
 		}
+		cout << "find> ";
 	}
 	return 0;
 }
