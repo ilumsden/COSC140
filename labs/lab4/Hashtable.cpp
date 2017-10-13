@@ -49,6 +49,7 @@ void hash_table::insert(const string &key, int lnum) {
 	if (++num_inuse >= max_inuse) {
             resize();
 	}
+        return;
     }
     if (table.at(index) == key) {
         vector<int>::iterator found = std::find(table.at(index).line_nums.begin(), table.at(index).line_nums.end(), lnum);
@@ -56,6 +57,7 @@ void hash_table::insert(const string &key, int lnum) {
             table.at(index).line_nums.push_back(lnum);
 	}
     }
+    return;
 }
 
 int hash_table::hash(const string &key) {
@@ -146,15 +148,17 @@ int main(int argc, char* argv[]) {
 	}
 	line_num++;
     }
+    fin.close();
     cout << "find> ";
     string input;
     vector<int> lnums;
     while (cin >> input) {
         lnums = tbl.find(input);
-	if (lnums.empty()) {
+	/*if (lnums.empty()) {
             cout << input << " not found.\n" << endl;
 	}
-	else {
+	else {*/
+        if (!lnums.empty()) {
             for (uint i = 0; i < lnums.size(); i++) {
                 cout << setw(4) << lnums.at(i) << ":";
 		cout << lines.at(lnums.at(i) - 1) << endl; 
