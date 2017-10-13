@@ -43,11 +43,13 @@ hash_table::hash_table(int N) {
 
 void hash_table::insert(const string &key, int lnum) {
     int index = qprobe(key);
-	if (table.at(index) == string()) {
-		key_line new_key;
-		new_key.key = key;
-		new_key.line_nums.push_back(lnum);
-        table[index] = new_key;
+	if (!(table.at(index).inuse())) {
+		//key_line new_key;
+		//new_key.key = key;
+		//new_key.line_nums.push_back(lnum);
+        //table[index] = new_key;
+            table.at(index).key = key;
+            table.at(index).line_nums.push_back(lnum);
 		if (++num_inuse >= max_inuse) {
             resize();
 		}
