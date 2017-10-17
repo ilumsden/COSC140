@@ -1,0 +1,56 @@
+#!/bin/sh 
+# Jens Gregor (C) Mon Oct 16 13:48:41 EDT 2017
+
+# usage: makepdf file 
+# usage: makepdf file.txt
+
+if [ $# -eq 0 ]
+then
+  echo "Error: No sudoko input file specified!"
+  exit 0
+fi
+
+FILE=`echo $1 | sed "s/.txt//"`
+
+if [ ! -f ${FILE}.txt ]
+then
+  echo "error: sudoko file ${FILE}.txt doesn't exist!"
+  exit 0
+fi
+
+(
+echo "\\documentclass[11pt]{article}"
+echo "\\pagestyle{empty}"
+echo "\\thispagestyle{empty}"
+echo "\\begin{document}"
+echo "\\setlength{\\unitlength}{9mm}"
+echo "\\begin{center}"
+echo "\\begin{picture}(9, 9)"
+echo "  \\linethickness{0.3mm}"
+echo "  \\multiput(0, 0)(3, 0){4}{\\line(0, 1){9}}"
+echo "  \\multiput(0, 0)(0, 3){4}{\\line(1, 0){9}}"
+echo "  \\linethickness{0.15mm}"
+echo "  \\multiput(0, 0)(1, 0){10}{\\line(0, 1){9}}"
+echo "  \\multiput(0, 0)(0, 1){10}{\\line(1, 0){9}}"
+
+cat ${FILE}.txt |\
+    awk '{ \
+	  printf \
+	     "  \\put(%.1f,%.1f){\\tt\\Huge %d}\n", \
+	     $2+0.30, 8-$1+0.20, $3 \
+	}'
+
+echo "\\end{picture}"
+echo
+echo "\\makebox[80mm]{\\tt\\small" \
+     " " `echo ${FILE} | sed "s/_/ /g"` \
+     " \\hfill CS140}"
+
+echo "\\end{center}"
+echo "\\vfill"
+echo "\\end{document}"
+
+) > ./${FILE}.tex
+
+pdflatex ./${FILE}.tex > /dev/null
+rm -f ${FILE}.aux ${FILE}.log ${FILE}.tex
