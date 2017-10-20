@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -18,8 +19,9 @@ class sudoku {
         void write(const char *, const char *);
 
     private:
-        int solve(arguments);
-
+        int solve(int, int);
+        
+        void valid_values(int, int, vector<int> &);
         bool error_check_value(int, int);
         bool error_check_uniqueness();
 
@@ -37,14 +39,55 @@ sudoku::sudoku() {
 
 void sudoku::solve() {
     cout << "SOLVE\n";
-
-    // call recursive computation
-
+    int solve_success = solve(0, 0);
+    if (solve_success == 0) {
+        cerr << "There's an issue with the recursive solve function.\n"
+             << "It failed to successfully solve this problem.\n";
+        exit(-7);
+    }
     display();
   
-    // error check data values
-    // error check uniqueness
-    // exit if errors detected
+    if (!error_check_value(1, 9)) {
+        exit(-5);
+    }
+    if (!error_check_uniqueness()) {
+        exit(-6);
+    }
+}
+
+void sudoku::valid_values(int row, int col, vector<int> &valid) {
+    vector<int>::iterator found;
+    if (game[row][col] != 0) {
+        valid.clear();
+        valid.push_back(game[row][col]);
+        return;
+    }
+    for (int j = 0; j < 9; j++) {
+        if (j != col && game[row][j] != 0) {
+            found = std::find(valid.begin(), valid.end(), game[row][j]);
+            if (found != valid.end()) {
+                valid.erase(found);
+            }
+        }
+        if (j != row && game[j][col] != 0) {
+            found = std::find(valid.begin(), valid.end(), game[j][col]);
+            if (found != valid.end()) {
+                valid.erase(found);
+            }
+        }
+    }
+    int row_groupcheck = row - (row % 3);
+    int col_groupcheck = col - (col % 3);
+    for (int k = row_groupcheck; k < row_groupcheck + 3; k++) {
+        for (int l = col_groupcheck; l < col_groupcheck + 3; l++) {
+            if (k != row && l != col && game[k][l] != 0) {
+                found = std::find(valid.begin(), valid.end(), game[k][l]);
+                if (found != valid.end()) {
+                    valid.erase(found);
+                }
+            }  
+        }
+    }
 }
 
 bool sudoku::error_check_value(int min, int max) {
@@ -72,11 +115,11 @@ bool sudoku::error_check_uniqueness() {
 	    else {
                 for (int k = 0; k < 9; k++) {
                     if (game[i][k] == game[i][j] && k != j) {				    	
-                        cerr << row << " " << col << " " << val << " illegal non-unique value\n";
+                        cerr << i << " " << j << " " << game[i][j] << " illegal non-unique value\n";
 			unique = false;
 		    }
 		    if (game[k][j] == game[i][j] && k != i) {
-                        cerr << row << " " << col << " " << val << " illegal non-unique value\n";
+                        cerr << i << " " << j << " " << game[i][j] << " illegal non-unique value\n";
 			unique = false;
 		    }
 		}
@@ -86,7 +129,7 @@ bool sudoku::error_check_uniqueness() {
 	        for (int l = row_groupcheck; l < row_groupcheck + 3; l++) {
                     for (int m = col_groupcheck; m < col_groupcheck + 3; m++) {
                         if (game[l][m] == game[i][j] && l != i && m != j) { 
-                            cerr << row << " " << col << " " << val << " illegal non-unique value\n";
+                            cerr << i << " "  << j << " " << game[i][j] << " illegal non-unique value\n";
 			    unique = false;
 			    unique_cell = false;
 			    break;
@@ -123,17 +166,19 @@ void sudoku::read(const char *fname) {
     fin.close();
 
     if (kill) {
-        exit(0);
+        exit(-2);
     }
 
-    bool valid_vals = error_check_value(0, 9);
-    if (!valid_vals) {
-        exit(0);
+    kill = error_check_value(0, 9);
+    if (!kill) {
+        exit(-3);
     }
 
-    bool unique_vals = error_check_uniqueness
-    // error check uniqueness
-    // exit if errors detected
+    kill = error_check_uniqueness();
+    if (!kill) {
+        exit(-4);
+    }
+    display();
 }
 
 void sudoku::write(const char *fname) {
@@ -183,22 +228,49 @@ void sudoku::display() {
     }
 }
 
-int sudoku::solve(arguments) {
-    // if solution found, 
-    //   return solution-found
-    //
-    // set cell index (i,j)
-    // determine valid values 
-    // if no valid values left,
-    //   return road-to-nowhere
-    //
-    // iterate thru valid values 
-    //   game[i][j] = next value
-    //   if solve(arguments) == solution-found
-    //     return solution-found
-    //
-    // reset: game[i][j] = 0
-    // return road-to-nowhere
+int sudoku::solve(int row, int col) {
+    if (game[row][col] != 0) {
+        if (col < 8) {
+            if (solve(row, col+1) == 1) {
+                return 1;
+            }
+        }
+        else {
+            if (solve(row+1, 0) == 1) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    vector<int> vvals;
+    for (int i = 1; i <= 9; i++) {
+        vvals.push_back(i);
+    }
+    valid_values(row, col, vvals);
+    if (vvals.empty()) {
+        return 0;
+    }
+    if (row == 8 && col == 8 && vvals.size() == 1) {
+        game[row][col] = vvals.at(0);
+        return 1;
+    }
+    vector<int>::iterator loop_vals = vvals.begin();
+    while (loop_vals != vvals.end()) {
+        game[row][col] = *loop_vals;
+        if (col < 8) {
+            if (solve(row, col+1) == 1) {
+                return 1;
+            }
+        }
+        else {
+            if (solve(row+1, 0) == 1) {
+                return 1;
+            }
+        }
+        game[row][col] = 0;
+        ++loop_vals;
+    }
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -206,7 +278,7 @@ int main(int argc, char *argv[]) {
 
     if ((argc != 3) || (strcmp(argv[1], "-s") != 0) || strstr(argv[argc-1], ".txt") == NULL) {
         cerr << "usage: Sudoku -s game.txt\n";
-	exit(0);
+	exit(-1);
     }
 
     sudoku sudoku_game;
