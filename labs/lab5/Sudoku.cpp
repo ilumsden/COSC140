@@ -230,7 +230,10 @@ void sudoku::display() {
 
 int sudoku::solve(int row, int col) {
     if (game[row][col] != 0) {
-        if (col < 8) {
+        if (row == 8 && col == 8) {
+            return 1;
+        }
+        else if (col < 8) {
             if (solve(row, col+1) == 1) {
                 return 1;
             }
