@@ -42,3 +42,13 @@ Also included was the source code in `Sudoku.cpp`. More specifically the followi
 * Both `sudoku::write()` functions
 * The `sudoku::display()` function
 * The `main()` function
+
+## Note about the TXT files:
+
+The TXT files in this repository are used for inputing the puzzle data into the `Sudoku` executable and storing the solution for the puzzle produced by the executable.
+
+The naming conventions of the TXT files are as follows:
+* Input Files: `gamename.txt`
+* Output Files: `gamename_solved.txt`
+
+The contents of both types of files are lines of 3 integers representing the row number, column number, and value of the cell the line is representing. Note that the row and column numbers start at 0 and go to 8.
