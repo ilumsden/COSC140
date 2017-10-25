@@ -465,7 +465,7 @@ int main(int argc, char *argv[]) {
 
     if ((argc != 3) || (strcmp(argv[1], "-s") != 0) || strstr(argv[argc-1], ".txt") == NULL) {
         cerr << "usage: Sudoku -s game.txt\n";
-	exit(-1);
+	    exit(-1);
     }
 
     sudoku sudoku_game;
