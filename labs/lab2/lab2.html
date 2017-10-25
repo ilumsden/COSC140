@@ -1,0 +1,236 @@
+<title> CS140 -- Lab Assignment 2</title>
+
+<h1> CS140 -- Lab Assignment 2 (150 pts: Fall 2017)</h1>
+
+<hr>
+<h3>Getting motivated</h3>
+Want to play a game? In this lab you will have two programs
+repeat the process of shuffling an endless deck of cards and 
+dealing one until a desired card is reached.
+The real point of the exercise, though, is to have you work with 
+arrays and linked lists.
+<p>
+
+<h3>Lab submission and due date</h3>
+Your TAs will tell you how to submit your work in lab. 
+The due date for Prog2a is 11.59PM on Saturday September 16, 2017.
+while Prog2b is due 11.59PM on Saturday September 23, 2017.
+Thus, you have four days to finish Prog2a and seven days to
+finish Prog2b. If working on a Saturday is a problem for you, 
+finish the assignment on the Friday.
+
+<p>
+
+<hr>
+<h3>Dealing cards</h3>
+You are given a code sketch for Part A of the assignment. This code
+sketch
+includes a near-empty main program that you fill in as well as two 
+global arrays of strings representing the rank and suit of a card,
+and a function for generating random cards. Carry this code over from
+Part A to Part B. In fact, carry ALL the code from Part A
+over to Part B and modify what's needed to meet the change in specs.
+(The alternative is start over but that would be a waste of time.)
+
+<hr>
+<h3>Getting started and what you need to do</h3>
+
+To help you get started,
+run the Hydra script
+/home/cs140/labs/lab2/copy to obtain
+the following files: Prog2a.cpp (sketch code for Part A), 
+prog2a, prog2b (Hydra solution executables), and a makefile.
+Your job is to write the missing source code which must
+behave as described next. 
+<p>
+
+The two executables
+take two optional arguments: -seed=N where N is
+a non-negative integer for seeding the random number generator; 
+and
+-verbose causes the random_card() function to print each card to stdout
+before returning it to the calling function. 
+Note: That there is no error
+checking on the command line arguments; if you feed the
+programs garbage, they may crash or get stuck in a infinite loop -- you get
+out of the latter by typing ctrl-C.
+<p>
+
+<UL>
+<LI>
+For 50 points, make Prog2a.cpp compile and do the following.
+Generate random cards until all the different face cards have 
+been seen for
+a given suit (i.e., "Jack", "Queen", and "King").
+then print a table showing how many cards of each suit
+and rank you were dealt along the way. Flag the suit that
+caused termination by adding "**" at the end its output line.
+<p>
+
+The first step is to work out how to parse the string representing 
+a card into suit and rank and translate those into the indices for 
+the corresponding global string arrays. 
+That is, reverse engineer what the random_card() function does.
+Caveat: Do not simply use integer division to reverse the modulo 
+arithmetic, instead use string comparisons.
+Test the code by temporarily printing the suit and rank indices 
+to stdout.
+Break out of the loop after some small number of iterations.
+<p>
+
+The next step is to add a table that keeps track of which cards
+you are dealt (counts of suit and rank pairs).
+Implement this table using a static two-dimensional
+whose content you initialize to zero before entering the while loop.
+The table should have 4 rows and 13 columns corresponding to the
+fixed number of suits and the number of ranks, respectively.
+Test the code by printing the table to stdout as shown below
+after you break out of the loop.
+Again, do so after some small number of iterations.
+<p>
+
+The last step is to replace the finite-number-of-iterations 
+termination criterion with the one requested which is based
+on all face cards having been seen for a given suit. 
+That is, step thru the table for each suit and set a Boolean
+variable to true if the condition is met. Use this variable
+to break out of the loop.
+<p>
+
+Test your Prog2a exectuable using different seed values. 
+Use the verbose command-line option to print the cards to stdout
+so you can double-check your table output.
+When the code works as intended, clean it up and add a few comments.
+
+<LI>
+For 100 points, write the non-existent Prog2b.cpp code and have it
+keep track of the order in which a card rank is observed for each
+suit. You do this by inserting the cards at the back of
+linked lists, using one list for each suit. 
+The exception applies: each time a rank is seen again,
+the card gets moved to the front of the list.
+When the stopping criterion from Prog2a is encountered, break
+the infinite-loop and print the contents of each linked
+list to stdout as shown below.
+<p>
+
+Add an array of linked lists: the length of the array is fixed 
+at 4 like before, while the length of each linked list varies 
+from suit to suit. Each new card is added to
+the appropriate list thru use of an insert() function. Declare
+a list class based on a single linked list. The list class needs
+to define a private node datatype, and it must include a 
+constructor for 
+properly initializing an empty list, a destructor for deallocating
+all the nodes in a list as well as the list itself, and the mentioned
+insert function which works as described next; no other list class
+functions are needed.
+Overload operator<<() used by ostream and have it print
+the contents of the list. Since access is needed to private data
+members, make the overloaded output operator a friend of the list
+class. See the code handouts for how to set this up.
+<p>
+
+The list::insert() function is where the fun work takes place.
+The function takes a single integer argument, namely, the
+rank index of a card where index refers to the position of the
+rank in the global rank string array. If the rank index is not
+held by any node in the linked list, a new node is created and
+added to the end of the list that stores the rank index value.
+However, if a node is found to already hold the present
+rank index argument, that node is moved to the front the linked
+list. That is, the node in question is unlinked from where it
+is and inserted after the head node. 
+<p>
+
+Hint: You are using a single linked list which means you cannot go
+back once you have a match on the rank index. One option is to 
+look ahead instead of advancing and then taking a look a the rank
+index. Another option is to maintain two pointers, namely, one pointing
+to previous node and one pointing to current node.
+<p>
+
+Hint: Write generic code that works under all circumstances rather
+than have several codes for special cases. For example, write the
+insert() function so that it can handle a rank match regardless of
+where the matching node resides in the list. Draw a sketch of the 
+different scenarios that need to be handled and infer from it how
+to do it generically.
+
+</UL>
+<hr>
+<h3>Prog2a example output</h3>
+<pre>
+UNIX> ./prog2a
+   Clubs :   0   0   0   0   0   2   0   0   1   2   1   1   1 **
+Diamonds :   1   0   1   0   0   1   0   1   1   0   3   0   0
+  Hearts :   0   0   1   0   0   0   1   0   1   0   1   0   1
+  Spades :   1   0   0   0   0   0   0   0   0   0   1   1   0
+UNIX>
+UNIX> ./prog2a -seed=140
+   Clubs :   1   1   1   3   0   1   1   1   0   2   2   0   2
+Diamonds :   3   1   2   0   2   0   1   1   2   2   1   2   2 **
+  Hearts :   1   3   1   1   1   1   2   0   0   3   3   0   0
+  Spades :   0   1   0   1   2   2   0   0   1   0   1   1   0
+</pre>
+
+<h3>Prog2b example output</h3>
+<pre>
+UNIX> ./prog2b
+   Clubs : 10 6 Queen King 9 Jack **
+Diamonds : Jack 9 6 Ace 3 8
+  Hearts : 9 3 King 7 Jack
+  Spades : Queen Ace Jack
+UNIX> 
+UNIX> ./prog2b -seed=140
+   Clubs : 10 Jack King 4 2 Ace 7 6 3 8
+Diamonds : King 3 Ace 9 Queen 5 10 8 7 2 Jack **
+  Hearts : Jack 2 10 7 6 3 Ace 5 4
+  Spades : 6 5 Jack 4 9 Queen 2
+</pre>
+<p>
+Try the above with the -verbose option on. Then try using a different seed.
+<hr>
+
+
+<h3>Grade Rubric</h3>
+<p>
+NOTE 1: You must have a correctly functioning executable for each program you are assigned to 
+write.
+Verify your output against these working programs. The TAs will do the same when grading your
+submissions.  According  to lab grading guidelines, approximately half of the points awarded 
+for each assignment are determined by program <b>functionality</b>. Make sure your code does
+what it is supposed to!
+
+<p>
+NOTE 2: Use any <b>naming conventions</b> described in the lab assignment. 
+
+<p>
+NOTE 3: Add comments that what purpose major variables serve (not loop counters etc) and 
+what the computation is about at a fairly high level (not loop counter gets incremented etc). 
+Less is often more. Write only as many comments as you think somebody would need to 
+understand the flow of ethe code. You will not get points for comments, but you will loose
+points if you don't have any.
+
+<p>
+NOTE 4: These notes will not be listed on future lab assignments but they will remain in effect.
+
+
+<h4>Prog2a (50 points)<h4>
+<pre>
+*10: Using a 2D array for keeping track of cards counts.
+*10: Parsing the card string into suit and rank indices.
+*20: Stopping when a stop card is dealt.
+*10: Printing formatted table contents to stdout.
+
+</pre>
+
+<h4>Prog2b (100 points)<h4>
+<pre>
+*40: Linked-list class and use.
+*40: Function list::insert() implementation.
+*10: Overloaded operator<<() implementation.
+*10: Printing cards in order.
+</pre>
+
+Fri Sep  8 12:33:08 EDT 2017
