@@ -463,11 +463,19 @@ int sudoku::solve(int row, int col) {
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 
+    /* The block of code confirms that the correct
+     * command line arguments were passed to the 
+     * program.
+     */
     if ((argc != 3) || (strcmp(argv[1], "-s") != 0) || strstr(argv[argc-1], ".txt") == NULL) {
         cerr << "usage: Sudoku -s game.txt\n";
 	    exit(-1);
     }
 
+    /* The rest of this code creates a `sudoku` object
+     * and uses it to read, solve, and write the Sudoku
+     * puzzle passed through argv[2].
+     */
     sudoku sudoku_game;
 
     if (strcmp(argv[1], "-s") == 0) {
