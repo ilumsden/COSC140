@@ -1,0 +1,7 @@
+Homework 10: Problem 2:
+
+Preorder: M D A T R P M Q U
+
+Inorder: A D M M P Q R T U
+
+Postorder: A D M Q P R U T M
