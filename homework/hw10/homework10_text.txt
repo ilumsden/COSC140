@@ -1,4 +1,12 @@
-Homework 10: Problem 2:
+Homework 10:
+
+Problem 1 (Text Portion):
+
+Nodes: 9
+Height: 4
+Leaves: 4
+
+Problem 2:
 
 Preorder: M D A T R P M Q U
 
