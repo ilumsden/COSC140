@@ -49,8 +49,8 @@ class bst {
 
         void insert(TKey &);
 
-        //iterator lower_bound(const TKey &);
-        //iterator upper_bound(const TKey &);
+        iterator lower_bound(const TKey &);
+        iterator upper_bound(const TKey &);
 
         void print_bylevel();
 
@@ -226,9 +226,28 @@ class bst<TKey>::node *bst<TKey>::insert(node *T, TKey &key) {
     return T;
 }
 
-//bst<TKey>::lower_bound function goes here
+template <class TKey>
+typename bst<TKey>::iterator bst<TKey>::lower_bound(const TKey &inkey) {
+    node *p = Troot;
+    int dir;
+	node *tmp;
+	while (p->key != inkey) {
+        dir = (inkey > p->key);
+		tmp = p->link[dir];
+		if (tmp->key < inkey && p->key > inkey) {
+            break;
+		}
+		else if (
+	}
+	if (p->key == inkey) {
+        return iterator(p);
+	}
+}
 
-//bst<TKey>::upper_bound function goes here
+template <class TKey>
+typename bst<TKey>::iterator bst<TKey>::upper_bound(const TKey &inkey) {
+
+}
 
 template <class TKey>
 void bst<TKey>::print_bylevel() {
