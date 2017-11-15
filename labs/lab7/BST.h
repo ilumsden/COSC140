@@ -11,8 +11,7 @@ template <class TKey>
 class bst {
     struct node {
         node(int ID = int());
-
-	void print();
+        void print();
 
         /* `key` is the data stored in the node.
          * `id` is an int that states when the node was added to the tree.
@@ -21,44 +20,47 @@ class bst {
          * node's children.
          */
         TKey key;
-	int id;
+        int id;
         node *parent;
         node *link[2];
     };
   
-    /*public:
+    public:
         class iterator {
-	    public:
-                //default constructor (no argument)
-		//overloaded operators (++, *, ==, !=)
-	    private:
-	        //friend class bst<TKey>;
-		//constructor (with argument)
-	        node *p;
-	};
-	//iterator begin() { ... }
-	//iterator end() { ... }*/
+	        public:
+				iterator() {p = NULL;};
+                iterator operator++();
+				TKey &  operator*();
+				bool operator==(const iterator &) const;
+                bool operator!=(const iterator &) const;
+	        private:
+				friend class bst<TKey>;
+                iterator(node *np) {p = np;}
+	            node *p;
+	    };
+	    iterator begin();
+	    iterator end();
 
     public:
         bst() { Troot=NULL; tid=0;}
-	~bst() { clear(Troot); }
+        ~bst() { clear(Troot); }
 
-	bool empty() { return Troot==NULL; }
+        bool empty() { return Troot==NULL; }
 
-	void insert(TKey &);
+        void insert(TKey &);
 
-	//iterator lower_bound(const TKey &);
+        //iterator lower_bound(const TKey &);
         //iterator upper_bound(const TKey &);
 
-	void print_bylevel();
+        void print_bylevel();
 
     private:
         void clear(node *);
-	node *insert(node *, TKey &);
+        node *insert(node *, TKey &);
         
-	// tid is a node ID used to pass the correct ID to a node that
-	// will be inserted.
-	int tid;
+        // tid is a node ID used to pass the correct ID to a node that
+        // will be inserted.
+        int tid;
         // Troot points to the root node of the tree.
         node *Troot;
 };
@@ -111,7 +113,68 @@ void bst<TKey>::node::print() {
     cout << "\n";
 }
 
-//bst<TKey>::iterator functions not defined above go here
+template <class TKey>
+typename bst<TKey>::iterator bst<TKey>::iterator::operator++() {
+    if (p == NULL) {
+        ;
+	}
+	else if (p->link[1] != NULL) {
+        p = p->link[1];
+		while (p->link[0] != NULL) {
+            p = p->link[0];
+		}
+	}
+	else if (p->parent == NULL) {
+        ;
+	}
+	else {
+		int exit = 0;
+        while (p->parent != NULL) {
+			if (p->parent->link[0] == p) {
+                p = p->parent;
+				exit = 1;
+				break;
+			}
+			p = p->parent;
+		}
+		if (!exit) {
+            p = NULL;
+		}
+	}
+	return iterator(p);
+}
+
+template <class TKey>
+TKey & bst<TKey>::iterator::operator*() {
+    return p->key;
+}
+
+template <class TKey>
+bool bst<TKey>::iterator::operator==(const iterator &it) const {
+    return it.p == p;
+}
+
+template <class TKey>
+bool bst<TKey>::iterator::operator!=(const iterator &it) const {
+    return it.p != p;
+}
+
+template <class TKey>
+typename bst<TKey>::iterator bst<TKey>::begin() {
+	if (Troot == NULL || Troot->link[0] == 0) {
+        return iterator(Troot);
+	}
+	node *p = Troot;
+	while (p->link[0] != NULL) {
+        p = p->link[0];
+	}
+	return iterator(p);
+}
+
+template <class TKey>
+typename bst<TKey>::iterator bst<TKey>::end() {
+    return iterator();
+}
 
 template <class TKey>
 void bst<TKey>::clear(node *T) {
@@ -157,7 +220,7 @@ class bst<TKey>::node *bst<TKey>::insert(node *T, TKey &key) {
          */ 
         int dir = T->key < key;
         T->link[dir] = insert(T->link[dir], key);
-	T->link[dir]->parent = T;
+        T->link[dir]->parent = T;
     }
 
     return T;
