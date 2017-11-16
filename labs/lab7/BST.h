@@ -27,19 +27,19 @@ class bst {
   
     public:
         class iterator {
-	        public:
-				iterator() {p = NULL;};
+	    public:
+                iterator() {p = NULL;};
                 iterator operator++();
-				TKey &  operator*();
-				bool operator==(const iterator &) const;
+                TKey &  operator*();
+                bool operator==(const iterator &) const;
                 bool operator!=(const iterator &) const;
-	        private:
-				friend class bst<TKey>;
+            private:
+                friend class bst<TKey>;
                 iterator(node *np) {p = np;}
-	            node *p;
-	    };
-	    iterator begin();
-	    iterator end();
+                node *p;
+	};
+	iterator begin();
+	iterator end();
 
     public:
         bst() { Troot=NULL; tid=0;}
@@ -117,31 +117,31 @@ template <class TKey>
 typename bst<TKey>::iterator bst<TKey>::iterator::operator++() {
     if (p == NULL) {
         ;
-	}
-	else if (p->link[1] != NULL) {
+    }
+    else if (p->link[1] != NULL) {
         p = p->link[1];
-		while (p->link[0] != NULL) {
+	while (p->link[0] != NULL) {
             p = p->link[0];
-		}
 	}
-	else if (p->parent == NULL) {
+    }
+    else if (p->parent == NULL) {
         ;
-	}
-	else {
-		int exit = 0;
+    }
+    else {
+        int exit = 0;
         while (p->parent != NULL) {
-			if (p->parent->link[0] == p) {
+            if (p->parent->link[0] == p) {
                 p = p->parent;
-				exit = 1;
-				break;
-			}
-			p = p->parent;
-		}
-		if (!exit) {
+                exit = 1;
+                break;
+	    }
+            p = p->parent;
+        }
+        if (!exit) {
             p = NULL;
-		}
 	}
-	return iterator(p);
+    }
+    return iterator(p);
 }
 
 template <class TKey>
@@ -161,14 +161,14 @@ bool bst<TKey>::iterator::operator!=(const iterator &it) const {
 
 template <class TKey>
 typename bst<TKey>::iterator bst<TKey>::begin() {
-	if (Troot == NULL || Troot->link[0] == 0) {
+    if (Troot == NULL || Troot->link[0] == NULL) {
         return iterator(Troot);
-	}
-	node *p = Troot;
-	while (p->link[0] != NULL) {
+    }
+    node *p = Troot;
+    while (p->link[0] != NULL) {
         p = p->link[0];
-	}
-	return iterator(p);
+    }
+    return iterator(p);
 }
 
 template <class TKey>
@@ -229,24 +229,75 @@ class bst<TKey>::node *bst<TKey>::insert(node *T, TKey &key) {
 template <class TKey>
 typename bst<TKey>::iterator bst<TKey>::lower_bound(const TKey &inkey) {
     node *p = Troot;
-    int dir;
-	node *tmp;
-	while (p->key != inkey) {
+    if (p == NULL) {
+        return iterator();
+    }
+    int dir = (inkey > p->key);
+    node *next = p->link[dir];
+    node *curr_gt = p;
+    if (next == NULL && curr_gt->key < inkey) {
+        return iterator();
+    }
+    while (p->key != inkey && next != NULL) {
+        if (p->key > inkey && p->key < curr_gt->key) {
+            curr_gt = p;
+        }
+        p = next;
         dir = (inkey > p->key);
-		tmp = p->link[dir];
-		if (tmp->key < inkey && p->key > inkey) {
-            break;
-		}
-		else if (
-	}
-	if (p->key == inkey) {
+        next = p->link[dir];
+        if (next == NULL) {
+            if (p->key > inkey && p->key < curr_gt->key) {
+                curr_gt = p;
+            }
+        }
+    }
+    if (p->key == inkey) {
         return iterator(p);
-	}
+    }
+    else if (curr_gt->key < inkey) {
+        return iterator();
+    }
+    else {
+        return iterator(curr_gt);
+    }
 }
 
 template <class TKey>
 typename bst<TKey>::iterator bst<TKey>::upper_bound(const TKey &inkey) {
-
+    node *p = Troot;
+    if (p == NULL) {
+        return iterator();
+    }
+    int dir = (inkey > p->key);
+    node *next = p->link[dir];
+    node *curr_gt = p;
+    if (next == NULL && curr_gt->key < inkey) {
+        return iterator();
+    }
+    while (next != NULL) {
+        if (p->key > inkey && (p->key < curr_gt->key || curr_gt->key < inkey)) {
+            curr_gt = p;
+        }
+        p = next;
+        if (p->key == inkey) {
+            dir = 1;
+        }
+        else {
+            dir = (inkey > p->key);
+        }
+        next = p->link[dir];
+        if (next == NULL) {
+            if (p->key > inkey && (p->key < curr_gt->key || curr_gt->key < inkey)) {
+                curr_gt = p;
+            }
+        }
+    }
+    if (curr_gt->key < inkey) {
+        return iterator();
+    }
+    else {
+        return iterator(curr_gt);
+    }
 }
 
 template <class TKey>
