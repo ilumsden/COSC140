@@ -4,9 +4,13 @@
 
 ### Part 1:
 First, create the `BST.h` file needed to compile and run the `BST1` program which is based on `bst1_usage.cpp`. Here is how you do it.
+
 Copy `bst.h` to `BST.h` (_I did this by just renaming_ `bst.h`_ to_ `BST.h` _using the `mv` command in Terminal_.). Strip out comments as well as any code not needed for `BST1` like the iterator subcalss and all undefined bst member functions (_This was just commented out._). Add a node ID (`int`) and a parent pointer (`node *`) to the `bst::node` subclass. Define and implement the `bst::node()` constructor. Have the constructor take a node ID argument which is set to 0 if absent, and use this argument to initialize the node ID. Set the parent pointer to `NULL`.
+
 The node ID is a unique integer assigned to nodes as they are created (_It essentially states the order in which the nodes were added._). Add a node ID to the bst class which is initialized in the `bst` constructor and updated everytime a new node is added to the binary search tree. Update `bst::insert` to do the latter and to pass teh updated value along to the `bst::node` constructor.
+
 With respect to the parent link, be aware that `bst::insert()` is a recursive function which does __not__ have access to the parent when processing a node. You must therefore set the parent link as you ascend out of the recursion (when you reach the parent, you have access to the root of the subtree just processed).
+
 Update `bst::node::print()` to output the node key, its ID, the parent ID, and the left and right subtree IDs (if they exist).
 
 ### Part 2:
