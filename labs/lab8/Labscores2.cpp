@@ -13,7 +13,22 @@
  * Author: Ian Lumsden
  * Date: 11/28/17
  *
- * Summary
+ * This program is the same as Labscores1.cpp (reads data from file,
+ * stores it in name_t and labscores_t objects, makes a map of pairs of
+ * name_t and labscores_t objects, and uses the map to print the data to
+ * stdout in alphabetical order based on "lastname, firstname"). However,
+ * it also includes two additional operation modes, called "-byrank" and
+ * "-top10". For both of these modes, a new heap_t data type is created
+ * that stores iterators corresponding to pairs in the map created by
+ * the code from Labscores1.cpp. These iterators are stored in a subclass
+ * called data_t. In the heap_t object, the iterators are sorted as a max
+ * heap based on an overloaded less-than operator for data_t objects.
+ * Finally, using this heap_t object, the data is printed to the console
+ * as follows:
+ *    * "-byrank": Prints all data from highest mean score to lowest
+ *    * "-top10": Prints the first 10 lines that would be printed by "-byrank"
+ * For both of these modes, each line is formated the same as "-byname" from
+ * Labscores1.cpp.
  */
 
 using namespace std;
@@ -37,7 +52,7 @@ class labscores_t {
         void set_stats();
         void print_labscores() const;
         void clear();
-		const vector<float> get_stats() const;
+        const vector<float> get_stats() const;
     private:
         /* `scores` stores all the labscores for the corresponding "person".
          * `median` is an integer that stores the median of the sorted
@@ -59,17 +74,24 @@ typedef map<name_t, labscores_t> map_t;
 typedef stringstream sstream;
 
 class heap_t {
-	public:
+    public:
         bool empty() const;
-	    void add_data(const map_t::iterator&);
-	    void heapify();
-	    const map_t::iterator extract_top();
+	void add_data(const map_t::iterator&);
+	void heapify();
+	const map_t::iterator extract_top();
     private:
+        /* Data_t is a subclass that is used to store the iterators
+         * used as data in the heap_t object. Instead of just storing
+         * the data as a map_t::iterator member variable, this subclass
+         * is used so that the less-than operator can be overloaded to
+         * control the data ordering in the heap.
+         */
         struct data_t {
             bool operator<(const data_t&) const;
             map_t::iterator it;
-		};
-		vector<data_t> data;
+	};
+        // `data` is the vector that stores the heap's data.
+	vector<data_t> data;
 };
 
 /* This function allows for comparison between two name_t objects.
@@ -190,56 +212,97 @@ void labscores_t::clear() {
     mean = 0;
 }
 
+/* This accessor function is used to obtain the private stat
+ * members stored in the labscores_t object. It has been added
+ * to this code to help with the implementation of the overloaded
+ * less-than operator for the data_t subclass.
+ * The output is a vector storing the median (as a float) and the
+ * mean.
+ */
 const vector<float> labscores_t::get_stats() const {
     vector<float> stats;
-	stats.push_back((float) median);
-	stats.push_back(mean);
-	return stats;
+    stats.push_back((float) median);
+    stats.push_back(mean);
+    return stats;
 }
 
+/* This function returns true if the heap is empty and
+ * true if the heap is not empty.
+ */
 bool heap_t::empty() const {
     return (data.size() == 0);
 }
 
+/* This function adds a new piece of data to the heap by
+ * simply making a data_t object and pushing that object to
+ * the back of the member vector. Note that this function does
+ * NOT cause the heap to maintain heap order. Restoring order
+ * with `heap_t::heapify()` is done in `main()`.
+ */
 void heap_t::add_data(const map_t::iterator& newdata) {
     data_t newelem;
-	newelem.it = newdata;
-	data.push_back(newelem);
-	return;
+    newelem.it = newdata;
+    data.push_back(newelem);
+    return;
 }
 
+/* This function reorders `heap_t::data` so that
+ * it follows max-heap ordering. This is done with the
+ * STL `make_heap` function.
+ */
 void heap_t::heapify() {
     make_heap(data.begin(), data.end());
     return;
 }
 
+/* The function returns the `map_t::iterator` stored
+ * in the top `data_t` object stored in `heap_t::data`.
+ * Once the iterator is obtained, the STL `pop_heap` function
+ * is used to move the top element to the back of the vector.
+ * It also restores max-heap ordering to the rest of the vector.
+ * Finally, the previous top element is deleted from the vector,
+ * and the iterator is returned.
+ */
 const map_t::iterator heap_t::extract_top() {
-	map_t::iterator top = data[0].it;
+    map_t::iterator top = data[0].it;
     pop_heap(data.begin(), data.end());
-	data.pop_back();
-	return top;
+    data.pop_back();
+    return top;
 }
 
+/* This overloaded less than operator is used to control the
+ * max-heap ordering of the heap_t object. If the mean of the
+ * left-hand-side (LHS) data_t object is less than that of the
+ * right-hand-side (RHS) data_t object, the function returns 
+ * TRUE. Otherwise, if the two means are equal, the medians of
+ * the LHS and RHS are compared in the same way (if 
+ * LHS.median < RHS.median, return TRUE). Finally, if the two
+ * medians are also equal, the formatted names of LHS and RHS
+ * are compared. Again, if LHS.name < RHS.name, the function
+ * returns TRUE. If LHS > RHS for any of the tests in the function,
+ * FALSE is returned. Additionally, if the function compares the
+ * names and they are equal, FALSE is returned.
+ */
 bool heap_t::data_t::operator<(const data_t& rhs) const {
     vector<float> lhs_stats = it->second.get_stats();
-	vector<float> rhs_stats = rhs.it->second.get_stats();
-	if (lhs_stats[1] < rhs_stats[1]) {
+    vector<float> rhs_stats = rhs.it->second.get_stats();
+    if (lhs_stats[1] < rhs_stats[1]) {
         return true;
-	}
-	else if (lhs_stats[1] == rhs_stats[1]) {
-	    int lhs_median = (int)(lhs_stats[0]);
-	    int rhs_median = (int)(rhs_stats[0]);
-	    if (lhs_median < rhs_median) {
+    }
+    else if (lhs_stats[1] == rhs_stats[1]) {
+        int lhs_median = (int)(lhs_stats[0]);
+	int rhs_median = (int)(rhs_stats[0]);
+	if (lhs_median < rhs_median) {
             return true;
-	    }
-		else if (lhs_median == rhs_median) {
-            string lhsname = it->first.get("last") + ", " + it->first.get("first");
-			string rhsname = rhs.it->first.get("last") + ", " + rhs.it->first.get("last");
-			if (lhsname < rhsname) {
-                return true;
-			}
-		}
 	}
+	else if (lhs_median == rhs_median) {
+            string lhsname = it->first.get("last") + ", " + it->first.get("first");
+	    string rhsname = rhs.it->first.get("last") + ", " + rhs.it->first.get("last");
+	    if (lhsname < rhsname) {
+                return true;
+	    }
+	}
+    }
     return false;
 }
 
@@ -313,35 +376,55 @@ int main(int argc, char *argv[]) {
         scores.set_stats();
         namescores.insert(make_pair(name, scores));
     }
+    // These two iterators are used to loop through the map.
     map_t::iterator curr = namescores.begin();
     map_t::iterator end = namescores.end();
-	if (strcmp(argv[1], "-byname") == 0) {
+    /* If the program is running in "-byname" mode, the data will
+     * be obtained and printed to stdout through an inorder traversal
+     * of the map.
+     */
+    if (strcmp(argv[1], "-byname") == 0) {
         while (curr != end) {
             curr->first.print_name(max_namelength);
             curr->second.print_labscores();
             cout << endl;
             ++curr;
         }
-	}
-	else {
-		heap_t scoreheap;
+    }
+    // The code will enter this branch if it is run in "-byrank" or "-top10" modes.
+    else {
+        /* In this block, a heap_t object is created, and the contents of the map
+         * are added to the heap through an inorder traversal of the map.
+         */
+        heap_t scoreheap;
         while (curr != end) {
             scoreheap.add_data(curr);
-			++curr;
-		}
-		scoreheap.heapify();
-		map_t::iterator top;
-		int loop_num = 0;
-		while (!scoreheap.empty()) {
+            ++curr;
+	}
+        // This call heapifies the data once it has been added to the heap_t object.
+	scoreheap.heapify();
+        // Top will be used to store the iterator returned by `heap_t::extract_top()`.
+	map_t::iterator top;
+        // Loop_num will be used to trigger the different behaviors of "-byrank" and "-top10".
+	int loop_num = 0;
+        /* The rest of this code goes through the data in the heap_t object.
+         * For each pass, the top node is popped from the heap and stored in
+         * the `top` variable. Then, the data that the iterator points to is
+         * printed, and `loop_num` is incremented. If the program is running in
+         * "-byrank" mode, this process will be repeated until the heap is empty.
+         * If the program is running in "-top10" mode, the loop will break when
+         * 10 lines have been printed (`loop_num == 10`).
+         */
+	while (!scoreheap.empty()) {
             top = scoreheap.extract_top();
             top->first.print_name(max_namelength);
             top->second.print_labscores();
             cout << endl;
-			loop_num++;
-			if (strcmp(argv[1], "-top10") == 0 && loop_num == 10) {
+            loop_num++;
+            if (strcmp(argv[1], "-top10") == 0 && loop_num == 10) {
                 break;
-			}
-		}
+            }
 	}
+    }
     return 0;
 }
